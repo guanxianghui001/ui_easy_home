@@ -1,7 +1,6 @@
 import pymysql
-from conf import config
+from app.conf import config
 from pymysql.err import OperationalError as OpErr
-from pymysql.err import IntegrityError
 
 
 class SqlInvolve:

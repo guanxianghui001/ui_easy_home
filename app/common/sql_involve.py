@@ -26,33 +26,38 @@ class SqlInvolve:
             print("mysql Error %d : %s" % (e.args[0], e.args[1]))
             print("数据库连接异常失败，域名:{} 端口:{} 用户名:{}".format(self.host, self.port, self.user))
 
-    def get_all(self, table_name, condition, type=1):
+    def get_all(self, table_fields, table_name, conditions: dict, type=1, *args):
         """
           查询数据
 
-          :param type:
+          :param table_fields: 查询数据的列名
+          :param type:查询类型
           :param table_name: 数据表名称
           :param condition: 查询条件，以字典形式存储，当一个参数时，condition = {'eid':1},condition = {'eid':1,'name':'dded'}
           :return:
         """
-
+        # print("args的值:{}".format(args))
         try:
-            if condition == {}:
-                get_sql = "SELECT * FROM " + table_name
-            else:
-                for key in condition:
-                    condition[key] = "'" + condition[key] + "'"
-                # 字典的keys方法返回对象类型，使用list()编程列表格式
-                keys = list(condition.keys())
-                if len(keys) == 1:
-                    get_sql = "SELECT * FROM " + table_name + " WHERE " + keys[0] + " = " + condition[keys[0]]
+            if conditions == {}:
+                if args == ():
+                    get_sql = "SELECT {} FROM {} ".format(table_fields, table_name)
                 else:
-                    condition = ''
-                    for k in keys:
-                        condition = condition + k + " = " + condition[k] + " and "
-                    condition = condition[:-4]
-                    get_sql = "SELECT * FROM " + table_name + " WHERE " + condition
+                    get_sql = "SELECT {} FROM {}  Order BY {}".format(table_fields, table_name, args[0])
+            else:
+                cond = ''
+                for k, v in conditions.items():
+                    if isinstance(v, int):
+                        cond = cond + ' {} ={} and'.format(k, v)
+                    else:
+                        cond = cond + " {} ='{}' and".format(k, v)
+                cond = cond[:-4]
+                # print(cond)
+                if args == ():
+                    get_sql = "SELECT {} FROM {} WHERE {}".format(table_fields, table_name, cond)
+                else:
+                    get_sql = "SELECT {} FROM {} WHERE {} ORder BY {}".format(table_fields, table_name, cond, args[0])
             self.connect
+            # print(get_sql)
             self.cursor.execute(get_sql)
             if type == 1:
                 datas = self.cursor.fetchall()
@@ -61,11 +66,10 @@ class SqlInvolve:
             else:
                 print("类型错误")
             self.conn.commit()
-            data_result = {'code': '0000', 'message': '执行查询成功！', 'datas': datas}
+            return datas
         except Exception as e:
             print(e)
-            data_result = {'code': '9999', 'message': '执行查询失败！', 'datas': {}}
-        return data_result
+            return datas
 
     def insert_table_datas(self, table_name, table_datas: dict):
         """
@@ -92,7 +96,7 @@ class SqlInvolve:
         except pymysql.err.IntegrityError as e:
             self.conn.rollback()
             insert_result = {'code': '9999', 'message': '执行插入失败！', 'datas': {}}
-            print('mysql Error {}:{} ' .format(e.args[0], e.args[1]))
+            print('mysql Error {}:{} '.format(e.args[0], e.args[1]))
         return insert_result
 
     def update_table_datas(self, table_name: str, update_datas: dict, condition):
@@ -181,6 +185,10 @@ class SqlInvolve:
             self.conn.rollback()
             print("mysql Error %d :%s " % (e.args[0], e.args[1]))
             clear_result = {'code': '9999', 'message': '执行清除任务失败！', 'datas': {}}
+        except AttributeError as e:
+            self.conn.rollback()
+            print("mysql Error %d :%s " % (e.args[0], e.args[1]))
+            clear_result = {'code': '9999', 'message': '执行清除任务失败！', 'datas': {}}
         return clear_result
 
     def close(self):
@@ -192,9 +200,14 @@ class SqlInvolve:
 
 if __name__ == '__main__':
     result = SqlInvolve()
-    data = result.get_all('project', {})
-    data1 = result.insert_table_datas('project', {"id": 1239811, "name": "资产"})
-    data2= result.update_table_datas('project',{"name":"测试项目"},{"id":123981})
+    table_field = "id, name, create_time, update_time"
+    condition = {"is_del": 0, "name": "菲asd菲"}
+    data = result.get_all(table_field, 'project', condition,(1))
+    data_total = result.get_all('count(*)', 'project', condition)
+    # data1 = result.insert_table_datas('project', {"id": 1239811, "name": "资产"})
+    # data2 = result.update_table_datas('project', {"name": "测试项目"}, {"id": 123981})
+
+    # print("输出{}".format(data_total))
+    # print(data_total[0][0])
     print(data)
-    print(data1)
-    print(data2)
+    # print(data2)

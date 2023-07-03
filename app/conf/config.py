@@ -6,3 +6,4 @@ db_port = 3306
 db_user = 'tester'
 db_password = 'Qa123456'
 database = 'ui_easy_home'
+project_table = 'project'

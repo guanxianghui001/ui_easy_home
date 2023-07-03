@@ -71,8 +71,8 @@ class ResponseBase(BaseModel):
 
 # response_base = ResponseBase()
 if __name__ == '__main__':
-    response_base = ResponseBase.success()
-    response_base1 = ResponseBase.fail()
+    response_base = ResponseModel()
+    response_base1 = ResponseBase.response_200()
 
     print(response_base)
     print(response_base1)

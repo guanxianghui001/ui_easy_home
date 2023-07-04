@@ -11,20 +11,17 @@ from app.common.sql_involve import SqlInvolve
 
 from app.utils.generate_string import get_current_timestamp
 
-
 # class ProjectOperation:
 #     def __int__(self):
 #         self.table = config.project_table
 
+table = config.project_table
 
-def add_project(project_name):
+
+def add_projects(project_name):
+    # project_name=project_name.strip()
     project_id = snow.IdWorker(1, 2, 0).get_id()
-    # create_time = get_current_timestamp()
-    # update_time = get_current_timestamp()
     data_list = [['id', project_id], ['name', project_name]]
-    # data_list = [['id', project_id], ['name', project_name], ['create_time', create_time],
-    #              ['update_time', update_time]]
-    # print(SqlInvolve().get_all('count(*)', 'project', {"name": project_name, "is_del": 0})[0][0])
     if SqlInvolve().get_all('count(*)', 'project', {"name": project_name, "is_del": 0})[0][0] == 0:
         data = dict(data_list)
         SqlInvolve().insert_table_datas('project', data)
@@ -34,7 +31,6 @@ def add_project(project_name):
 
 
 def search_project():
-    table = config.project_table
     field = "id, name, create_time,update_time"
     condition = {"is_del": 0}
     data = SqlInvolve().get_all(field, table, condition, 1, 'create_time desc')
@@ -49,6 +45,28 @@ def search_project():
             list_field = ['id', 'name', 'create_time', 'update_time']
             list_result.append(dict(zip(list_field, i)))
         return list_result
+
+
+def delete_projects(project_name):
+    update_datas = {"is_del": 1}
+    condition = {"name": project_name}
+    if SqlInvolve().get_all('count(*)', table, {"is_del": 0})[0][0] > 0:
+        result = SqlInvolve().update_table_datas(table, update_datas, condition)
+        print(result)
+    else:
+        result = False
+    return result
+
+
+def update_projects(id, project_name):
+    condition = {"id": id}
+    update_datas = {"name": project_name}
+    if SqlInvolve().get_all('count(*)', table,condition)[0][0] > 0:
+        result = SqlInvolve().update_table_datas(table, update_datas, condition)
+        print(result)
+    else:
+        result = False
+    return result
 
 
 if __name__ == '__main__':

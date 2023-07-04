@@ -79,27 +79,32 @@ class SqlInvolve:
         :return:
         """
         try:
-            for key in table_datas:
-                # 将value值添加双引号，便于后面sql语句拼接使用，注意只要添加一层引号即可，如果是int型直接输入。
-                table_datas[key] = "'" + str(table_datas[key]) + "'"
-            key = ','.join(table_datas.keys())
-            value = ','.join(table_datas.values())
-            insert_sql = "INSERT INTO " + table_name + "(" + key + ") VALUES (" + value + ") "
+            insert_cond1 = ''
+            insert_cond2 = ''
+            for k, v in table_datas.items():
+                insert_cond1 = insert_cond1 + "{},".format(k)
+                if isinstance(v, int):
+                    insert_cond2 = insert_cond2 + '{},'.format(v)
+                else:
+                    insert_cond2 = insert_cond2 + "'{}',".format(v)
+            insert_cond1 = insert_cond1[:-1]
+            insert_cond2 = insert_cond2[:-1]
+            insert_cond = "INSERT INTO {} ({}) VALUES ({})".format(table_name, insert_cond1, insert_cond2)
+            print(insert_cond)
             self.connect
-            self.cursor.execute(insert_sql)
+            self.cursor.execute(insert_cond)
             self.conn.commit()
-            insert_result = {'code': '0000', 'message': '执行插入成功！'}
+            return True
         except OpErr as e:
             self.conn.rollback()
             print('mysql Error %d :%s ' % (e.args[0], e.args[1]))
-            insert_result = {'code': '9999', 'message': '执行插入失败！', 'datas': {}}
+            return False
         except pymysql.err.IntegrityError as e:
             self.conn.rollback()
-            insert_result = {'code': '9999', 'message': '执行插入失败！', 'datas': {}}
             print('mysql Error {}:{} '.format(e.args[0], e.args[1]))
-        return insert_result
+            return False
 
-    def update_table_datas(self, table_name: str, update_datas: dict, condition):
+    def update_table_datas(self, table_name: str, update_datas: dict, condition: dict):
         """
         更新数据库
         :param table_name: 库名称
@@ -108,62 +113,33 @@ class SqlInvolve:
         :return:
         """
         try:
-            if update_datas == {}:
-                print('更新字段不能为空！')
-                update_result = {'code': '9999', 'message': '更新字段不能为空', 'datas': {}}
-                return update_result
-            elif condition == {}:
-                print('更新条件不能为空！')
-                update_result = {'code': '9999', 'message': '更新条件不能为空', 'datas': {}}
-                return update_result
-            else:
-                # 更新字段处理
-                for key in update_datas:
-                    update_datas[key] = "'" + str(update_datas[key]) + "'"
-                    # print(update_datas[key])
-                for key in condition:
-                    condition[key] = "'" + str(condition[key]) + "'"
-                    # print(condition[key])
-                data_keys = list(update_datas.keys())
-                condition_keys = list(condition.keys())
-                if len(data_keys) == 1 and len(condition_keys) == 1:
-                    for k in update_datas:
-                        for key in condition:
-                            update_sql = "UPDATE " + table_name + " SET " + k + " = " + update_datas[
-                                k] + " WHERE " + key + "  = " + condition[key]
-                elif len(data_keys) == 1:
-                    for k in data_keys:
-                        condition = ''
-                        for key in condition:
-                            condition = condition + key + " = " + str(condition[key]) + " or "
-                        condition = condition[:-3]
-                        update_sql = "UPDATE " + table_name + " SET " + k + " = " + update_datas[
-                            k] + " WHERE " + condition
-                elif len(condition_keys) == 1:
-                    for k in condition_keys:
-                        upg_data = ''
-                        for key in update_datas:
-                            upg_data = upg_data + key + " = " + update_datas[key] + " , "
-                        upg_data = upg_data[:-2]
-                        update_sql = "UPDATE " + table_name + " SET " + upg_data + " WHERE " + k + " = " + condition[k]
+            update_cond1 = ''
+            update_cond2 = ''
+            # 将变更字段和条件组合成string
+            for k, v in update_datas.items():
+                if isinstance(v, int):
+                    update_cond1 = update_cond1 + ' {} ={},'.format(k, v)
                 else:
-                    upg_data = ''
-                    for k in data_keys:
-                        condt = ''
-                        for key in condition:
-                            condt = condt + key + " = " + condition[key] + " or "
-                        condt = condt[:-3]
-                        upg_data = upg_data + key + " = " + update_datas[key] + " , "
-                    upg_data = upg_data[:-2]
-                    update_sql = "UPDATE " + table_name + " SET " + upg_data + " WHERE " + condt
-                    # print(update_sql)
+                    update_cond1 = update_cond1 + " {} ='{}',".format(k, v)
+            update_cond1 = update_cond1[:-1]
+
+            for k, v in condition.items():
+                if isinstance(v, int):
+                    update_cond2 = update_cond2 + ' {} ={} and'.format(k, v)
+                else:
+                    update_cond2 = update_cond2 + " {} ='{}' and".format(k, v)
+            update_cond2 = update_cond2[:-4]
+            update_sql = "UPDATE " + table_name + " SET " + update_cond1 + " WHERE " + update_cond2
+            # print(update_sql)
             self.connect
             self.cursor.execute(update_sql)
             self.conn.commit()
-            update_result = {'code': '0000', 'message': '更新数据完成！', 'datas': {}}
+            self.cursor.execute(update_sql)
+            update_result = True
+            return update_result
         except OpErr as e:
             self.conn.rollback()
-            update_result = {'code': '9999', 'message': '更新失败！', 'datas': {}}
+            update_result = False
             print("mysql Error %d :%s " % (e.args[0], e.args[1]))
         return update_result
 
@@ -200,14 +176,15 @@ class SqlInvolve:
 
 if __name__ == '__main__':
     result = SqlInvolve()
-    table_field = "id, name, create_time, update_time"
-    condition = {"is_del": 0, "name": "菲asd菲"}
-    data = result.get_all(table_field, 'project', condition,(1))
-    data_total = result.get_all('count(*)', 'project', condition)
+    # table_field = "id, name, create_time, update_time"
+    # condition = {"is_del": 0, "name": "菲asd菲"}
+    # data = result.get_all(table_field, 'project', condition)
+    # data_total = result.get_all('count(*)', 'project', condition)
     # data1 = result.insert_table_datas('project', {"id": 1239811, "name": "资产"})
-    # data2 = result.update_table_datas('project', {"name": "测试项目"}, {"id": 123981})
-
+    # data2 = result.update_table_datas('project', {"name": "测试1","is_del":1}, {"id": 167580065657062195})
+    module_data = {"father_node_id": 0, "project_id": 1675800569601728512, "name": "分类一下"}
+    data3 = result.insert_table_datas('module', module_data)
     # print("输出{}".format(data_total))
     # print(data_total[0][0])
-    print(data)
-    # print(data2)
+    # print(data)
+    print(data3)

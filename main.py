@@ -61,7 +61,7 @@ async def add_module(item: AddModule):
     if module_name == "":
         return response_base.fail(code=40002, msg='模块名称不能为空')
     else:
-        module_dict["project_name"] = module_name
+        module_dict["name"] = module_name
         datas = add_modules(module_dict)
         print(datas)
         if type(datas) == dict:

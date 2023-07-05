@@ -118,18 +118,18 @@ class SqlInvolve:
             # 将变更字段和条件组合成string
             for k, v in update_datas.items():
                 if isinstance(v, int):
-                    update_cond1 = update_cond1 + ' {} ={},'.format(k, v)
+                    update_cond1 = update_cond1 + f' {k} ={v},'
                 else:
-                    update_cond1 = update_cond1 + " {} ='{}',".format(k, v)
+                    update_cond1 = update_cond1 + f" {k} ='{v}',"
             update_cond1 = update_cond1[:-1]
 
             for k, v in condition.items():
                 if isinstance(v, int):
-                    update_cond2 = update_cond2 + ' {} ={} and'.format(k, v)
+                    update_cond2 = update_cond2 + f' {k} ={v} and'
                 else:
-                    update_cond2 = update_cond2 + " {} ='{}' and".format(k, v)
+                    update_cond2 = update_cond2 + f" {k} ='{v}' and"
             update_cond2 = update_cond2[:-4]
-            update_sql = "UPDATE " + table_name + " SET " + update_cond1 + " WHERE " + update_cond2
+            update_sql = f"UPDATE {table_name} SET  {update_cond1} WHERE  {update_cond2}"
             # print(update_sql)
             self.connect
             self.cursor.execute(update_sql)
@@ -159,11 +159,11 @@ class SqlInvolve:
             self.conn.commit()
         except OpErr as e:
             self.conn.rollback()
-            print("mysql Error %d :%s " % (e.args[0], e.args[1]))
+            print(f'mysql Error {e.args[0]} {e.args[1]} ')
             clear_result = {'code': '9999', 'message': '执行清除任务失败！', 'datas': {}}
         except AttributeError as e:
             self.conn.rollback()
-            print("mysql Error %d :%s " % (e.args[0], e.args[1]))
+            print(f'mysql Error {e.args[0]} {e.args[1]} ')
             clear_result = {'code': '9999', 'message': '执行清除任务失败！', 'datas': {}}
         return clear_result
 

@@ -16,26 +16,28 @@ module_table = config.module_table
 def add_modules(module_data: dict):
     module_name = module_data["name"]
     father_node_id = module_data["father_node_id"]
-    module_id = module_data["module_id"]
-    # print(sql.get_all('count(*)', 'module', {"id": module_id, "is_del": 0})[0][0])
-    if sql.get_all('count(*)', 'module', {"id": father_node_id, "is_del": 0})[0][0]:
-        if sql.get_all('count(*)', 'module', {"id": module_id, "is_del": 0})[0][0]:
-            if not sql.get_all('count(*)', 'module', {"name": module_name, "module_id": module_id, "is_del": 0})[0][
-                0]:
-                sql.insert_table_datas(module_table, module_data)
-                return module_data
-            else:
-                status_code = 40001
-                detail = '同一项目下含有重复的模块名称'
-                return status_code, detail
+    project_id = module_data["project_id"]
+
+    # if sql.get_all('count(*)', 'module', {"id": father_node_id, "is_del": 0})[0][0]:
+    # 判断project_id是否存在
+    if sql.get_all('count(*)', 'project', {"id": project_id, "is_del": 0})[0][0]:
+        # 判断形同项目下是否含有相同模块名
+        print(sql.get_all('count(*)', 'module', {"name": module_name, "project_id": project_id, "is_del": 0})[0][0])
+        if not sql.get_all('count(*)', 'module', {"name": module_name, "project_id": project_id, "is_del": 0})[0][0]:
+            sql.insert_table_datas(module_table, module_data)
+            return module_data
         else:
-            status_code = 40003
-            detail = "项目id不存在或已删除"
+            status_code = 40001
+            detail = '同一项目下含有重复的模块名称'
             return status_code, detail
     else:
-        status_code = 40004
-        detail = "父级id不存在或已删除"
+        status_code = 40003
+        detail = "项目id不存在或已删除"
         return status_code, detail
+    # else:
+    #     status_code = 40004
+    #     detail = "父级id不存在或已删除"
+    #     return status_code, detail
 
 
 def search_module(module_id):

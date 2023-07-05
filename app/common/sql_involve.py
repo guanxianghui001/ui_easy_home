@@ -1,10 +1,9 @@
 import pymysql
 from app.conf import config
 from pymysql.err import OperationalError as OpErr
-
+from app.common.log import Logger
 
 class SqlInvolve:
-
     def __init__(self):
         self.cursor = None
         self.conn = None
@@ -13,6 +12,7 @@ class SqlInvolve:
         self.user = config.db_user
         self.password = config.db_password
         self.database = config.database
+        self.log=Logger()
 
     @property
     def connect(self):
@@ -21,10 +21,10 @@ class SqlInvolve:
                                         database=self.database, charset='utf8')
             self.cursor = self.conn.cursor()
         except OpErr as e:
-            print("mysql Error %d : %s" % (e.args[0], e.args[1]))
+            self.log.error("mysql Error %d : %s" % (e.args[0], e.args[1]))
         except Exception as e:
-            print("mysql Error %d : %s" % (e.args[0], e.args[1]))
-            print("数据库连接异常失败，域名:{} 端口:{} 用户名:{}".format(self.host, self.port, self.user))
+            self.log.error("mysql Error %d : %s" % (e.args[0], e.args[1]))
+            self.log.error("数据库连接异常失败，域名:{} 端口:{} 用户名:{}".format(self.host, self.port, self.user))
 
     def get_all(self, table_fields, table_name, conditions: dict, type=1, *args):
         """
@@ -57,7 +57,7 @@ class SqlInvolve:
                 else:
                     get_sql = f"SELECT {table_fields} FROM {table_name} WHERE {cond} ORder BY {args[0]}"
             self.connect
-            # print(get_sql)
+            self.log.info(get_sql)
             self.cursor.execute(get_sql)
             if type == 1:
                 datas = self.cursor.fetchall()
@@ -97,11 +97,11 @@ class SqlInvolve:
             return True
         except OpErr as e:
             self.conn.rollback()
-            print(f'mysql Error {e.args[0]} {e.args[1]} ')
+            self.log.error(f"mysql Error{e.args[0]} {e.args[1]}")
             return False
         except pymysql.err.IntegrityError as e:
             self.conn.rollback()
-            print(f'mysql Error {e.args[0]} {e.args[1]} ')
+            self.log.error(f"mysql Error{e.args[0]} {e.args[1]}")
             return False
 
     def update_table_datas(self, table_name: str, update_datas: dict, condition: dict):
@@ -140,7 +140,7 @@ class SqlInvolve:
         except OpErr as e:
             self.conn.rollback()
             update_result = False
-            print("mysql Error %d :%s " % (e.args[0], e.args[1]))
+            self.log.error(f"mysql Error{e.args[0]} {e.args[1]}")
         return update_result
 
     def clear_table_data(self, table_name):
@@ -159,11 +159,11 @@ class SqlInvolve:
             self.conn.commit()
         except OpErr as e:
             self.conn.rollback()
-            print(f'mysql Error {e.args[0]} {e.args[1]} ')
+            self.log.error(f"mysql Error{e.args[0]} {e.args[1]}")
             clear_result = {'code': '9999', 'message': '执行清除任务失败！', 'datas': {}}
         except AttributeError as e:
             self.conn.rollback()
-            print(f'mysql Error {e.args[0]} {e.args[1]} ')
+            self.log.error(f"mysql Error{e.args[0]} {e.args[1]}")
             clear_result = {'code': '9999', 'message': '执行清除任务失败！', 'datas': {}}
         return clear_result
 
@@ -176,9 +176,9 @@ class SqlInvolve:
 
 if __name__ == '__main__':
     result = SqlInvolve()
-    # table_field = "id, name, create_time, update_time"
-    # condition = {"is_del": 0, "name": "菲asd菲"}
-    # data = result.get_all(table_field, 'project', condition)
+    table_field = "id, name, create_time, update_time"
+    condition = {"is_del": 0, "name": "菲asd菲"}
+    data = result.get_all(table_field, 'project', condition)
     # data_total = result.get_all('count(*)', 'project', condition)
     # data1 = result.insert_table_datas('project', {"id": 1239811, "name": "资产"})
     # data2 = result.update_table_datas('project', {"name": "测试1","is_del":1}, {"id": 167580065657062195})
@@ -186,5 +186,5 @@ if __name__ == '__main__':
     data3 = result.insert_table_datas('module', module_data)
     # print("输出{}".format(data_total))
     # print(data_total[0][0])
-    # print(data)
-    print(data3)
+    print(data)
+    # print(data3)

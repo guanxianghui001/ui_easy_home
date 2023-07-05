@@ -5,6 +5,7 @@ from app.schemas.module import *
 from app.common.response.response_schema import ResponseBase
 from app.operation.project_operation import *
 from app.operation.module_operation import *
+from app.operation.code_operation import *
 
 app = FastAPI(debug=True)
 
@@ -86,6 +87,12 @@ async def update_module(item: UpdateModule):
         return response_base.response_200()
     else:
         return response_base.fail(code=40001, msg='模块已被删除或不存在')
+
+
+@app.get("/ui/code/info", summary="查询code数据")
+async def get_code():
+    datas = get_codes()
+    return response_base.response_200(data=datas)
 
 
 response_base = ResponseBase()

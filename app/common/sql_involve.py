@@ -40,22 +40,22 @@ class SqlInvolve:
         try:
             if conditions == {}:
                 if args == ():
-                    get_sql = "SELECT {} FROM {} ".format(table_fields, table_name)
+                    get_sql = f"SELECT {table_fields} FROM {table_name} "
                 else:
-                    get_sql = "SELECT {} FROM {}  Order BY {}".format(table_fields, table_name, args[0])
+                    get_sql = f"SELECT {table_fields} FROM {table_name}  Order BY {args[0]}"
             else:
                 cond = ''
                 for k, v in conditions.items():
                     if isinstance(v, int):
-                        cond = cond + ' {} ={} and'.format(k, v)
+                        cond = cond + f' {k} ={v} and'
                     else:
-                        cond = cond + " {} ='{}' and".format(k, v)
+                        cond = cond + f" {k} ='{v}' and"
                 cond = cond[:-4]
                 # print(cond)
                 if args == ():
-                    get_sql = "SELECT {} FROM {} WHERE {}".format(table_fields, table_name, cond)
+                    get_sql = f"SELECT {table_fields} FROM {table_name} WHERE {cond}"
                 else:
-                    get_sql = "SELECT {} FROM {} WHERE {} ORder BY {}".format(table_fields, table_name, cond, args[0])
+                    get_sql = f"SELECT {table_fields} FROM {table_name} WHERE {cond} ORder BY {args[0]}"
             self.connect
             # print(get_sql)
             self.cursor.execute(get_sql)
@@ -82,14 +82,14 @@ class SqlInvolve:
             insert_cond1 = ''
             insert_cond2 = ''
             for k, v in table_datas.items():
-                insert_cond1 = insert_cond1 + "{},".format(k)
+                insert_cond1 = insert_cond1 + f"{k},"
                 if isinstance(v, int):
-                    insert_cond2 = insert_cond2 + '{},'.format(v)
+                    insert_cond2 = insert_cond2 + f'{v},'
                 else:
-                    insert_cond2 = insert_cond2 + "'{}',".format(v)
+                    insert_cond2 = insert_cond2 + f"'{v}',"
             insert_cond1 = insert_cond1[:-1]
             insert_cond2 = insert_cond2[:-1]
-            insert_cond = "INSERT INTO {} ({}) VALUES ({})".format(table_name, insert_cond1, insert_cond2)
+            insert_cond = f"INSERT INTO {table_name} ({insert_cond1}) VALUES ({insert_cond2})"
             print(insert_cond)
             self.connect
             self.cursor.execute(insert_cond)
@@ -97,11 +97,11 @@ class SqlInvolve:
             return True
         except OpErr as e:
             self.conn.rollback()
-            print('mysql Error %d :%s ' % (e.args[0], e.args[1]))
+            print(f'mysql Error {e.args[0]} {e.args[1]} ')
             return False
         except pymysql.err.IntegrityError as e:
             self.conn.rollback()
-            print('mysql Error {}:{} '.format(e.args[0], e.args[1]))
+            print(f'mysql Error {e.args[0]} {e.args[1]} ')
             return False
 
     def update_table_datas(self, table_name: str, update_datas: dict, condition: dict):

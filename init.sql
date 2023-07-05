@@ -14,7 +14,7 @@
  Date: 29/06/2023 15:23:07
 */
 
-SET NAMES utf8mb4;
+# SET NAMES utf8;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
@@ -24,13 +24,13 @@ DROP TABLE IF EXISTS `code_detail`;
 CREATE TABLE `code_detail`  (
   `id` int NOT NULL AUTO_INCREMENT COMMENT '自增，不做他用',
   `code_type_id` int NOT NULL COMMENT '使用类型id',
-  `code_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '使用类型',
+  `code_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '使用类型',
   `code_value` int NOT NULL COMMENT '使用类型子id',
-  `code_desc` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述信息',
+  `code_desc` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述信息',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`, `code_value`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 50 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '预置码值表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 50 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '预置码值表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of code_detail
@@ -91,18 +91,18 @@ CREATE TABLE `code_detail`  (
 DROP TABLE IF EXISTS `element`;
 CREATE TABLE `element`  (
   `id` bigint NOT NULL COMMENT '元素id',
-  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '元素名称',
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '元素名称',
   `module_id` bigint NOT NULL COMMENT '模块id',
   `location_type` int NOT NULL COMMENT '定位类型',
-  `location` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '元素定位',
-  `target_location` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '其他备用填写文本或定位',
-  `desc` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述信息',
+  `location` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '元素定位',
+  `target_location` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '其他备用填写文本或定位',
+  `desc` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述信息',
   `project_id` bigint NOT NULL COMMENT '项目id',
   `is_del` tinyint NOT NULL COMMENT '是否删除，删除为0，有效为1',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '元素表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '元素表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of element
@@ -114,7 +114,7 @@ CREATE TABLE `element`  (
 DROP TABLE IF EXISTS `module`;
 CREATE TABLE `module`  (
   `id` int NOT NULL COMMENT '模块id',
-  `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '模块名称',
+  `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '模块名称',
   `father_node_id` bigint NOT NULL COMMENT '模块父节点id',
   `level` tinyint NULL DEFAULT NULL COMMENT '模块目录等级数，root为0级，root子节点为1，root孙节点为2，依此类推',
   `project_id` bigint NOT NULL COMMENT '项目id',
@@ -122,7 +122,7 @@ CREATE TABLE `module`  (
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '模块表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '模块表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for project
@@ -130,12 +130,12 @@ CREATE TABLE `module`  (
 DROP TABLE IF EXISTS `project`;
 CREATE TABLE `project`  (
   `id` bigint UNSIGNED NOT NULL COMMENT '项目id',
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '项目名称',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '项目名称',
   `is_del` tinyint(3) UNSIGNED ZEROFILL NULL DEFAULT 000 COMMENT '是否删除，删除为0，有效为1',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '项目表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '项目表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of project
@@ -149,15 +149,15 @@ CREATE TABLE `scenario`  (
   `id` bigint NOT NULL COMMENT '场景id',
   `project_id` bigint NULL DEFAULT NULL COMMENT '项目id，与项目表关联',
   `module_id` bigint NULL DEFAULT NULL COMMENT '模块id，与模块表关联',
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '场景名称',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '场景名称',
   `status` tinyint NULL DEFAULT NULL COMMENT '场景状态，1为未开始，2为运行中，3为已完成',
   `step_total` tinyint NULL DEFAULT NULL COMMENT '步骤总数',
-  `desc` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '描述',
+  `desc` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述',
   `is_del` tinyint NULL DEFAULT NULL COMMENT '是否删除，删除为0，有效为1',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '场景表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '场景表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of scenario
@@ -176,19 +176,19 @@ CREATE TABLE `step`  (
   `element_type` tinyint NULL DEFAULT NULL COMMENT '元素类型，1为元素对象，2为元素定位，元素对象时，使用elementid去元素库查对应信息，元素定位时，location和locationtype不能为空',
   `element_id` bigint NULL DEFAULT NULL COMMENT '元素对象id',
   `location_type` int NULL DEFAULT NULL COMMENT '元素定位类型',
-  `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '位置',
+  `location` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '位置',
   `operation` int NULL DEFAULT NULL COMMENT '操作动作',
-  `operation_text` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '操作文本，界面所有需要输入的本本，都存贮在这个字段中',
+  `operation_text` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '操作文本，界面所有需要输入的本本，都存贮在这个字段中',
   `post_operation_type` int NULL DEFAULT NULL COMMENT '后置操作类型，目前只支持元素断言',
   `assert_type` int NULL DEFAULT NULL COMMENT '后置断言类型，元素断言中具体断言方式类型，603元素存在、604元素不存在、607元素文本等于期望值、608元素文本不等于期望值',
   `post_element_id` bigint NULL DEFAULT NULL COMMENT '后置元素id',
-  `text` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '后置操作期望值',
+  `text` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '后置操作期望值',
   `order` int NOT NULL COMMENT '步骤排序，默认生成时，自动间隔1000',
   `is_del` tinyint NOT NULL COMMENT '是否删除，删除为0，有效为1',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '步骤表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '步骤表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of step

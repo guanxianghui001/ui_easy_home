@@ -9,3 +9,7 @@ db_password = '6YYSV!%7gcn!1T07wPyKRjql@RAB*kjO'
 database = 'ui_easy_home'
 project_table = 'project'
 module_table = 'module'
+
+
+#断言截图生成路径
+screenshot_dir = '../../report/screenshots'

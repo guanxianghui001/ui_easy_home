@@ -4,7 +4,7 @@
  Source Server         : test
  Source Server Type    : MySQL
  Source Server Version : 80033 (8.0.33)
- Source Host           : localhost:3306
+ Source Host           : 172.20.101.33:3306
  Source Schema         : ui_easy_home
 
  Target Server Type    : MySQL

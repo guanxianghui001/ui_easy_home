@@ -5,6 +5,7 @@
 @Author ：guanxianghui
 @Date ：2023/7/4 14:13 
 """
+from app.common import snow
 from app.conf import config
 from app.common.log import Logger
 from app.utils.encoding_tree import ram_list_to_tree
@@ -16,16 +17,26 @@ log = Logger()
 
 
 def add_modules(module_data: dict):
+    # module_id = snow.IdWorker(1, 2, 0).get_id()
+    # log.info(module_id)
     module_name = module_data["name"]
-    father_node_id = module_data["father_node_id"]
+    # father_node_id = module_data["father_node_id"]
     project_id = module_data["project_id"]
+    # module_data.update({"id": module_id})
     # if sql.get_all('count(*)', 'module', {"id": father_node_id, "is_del": 0})[0][0]:
     # 判断project_id是否存在
     if sql.get_all('count(*)', 'project', {"id": project_id, "is_del": 0})[0][0]:
         # 判断形同项目下是否含有相同模块名
         if not sql.get_all('count(*)', 'module', {"name": module_name, "project_id": project_id, "is_del": 0})[0][0]:
-            sql.insert_table_datas(module_table, module_data)
-            return module_data
+
+            date=sql.insert_table_datas(module_table, module_data)
+            if date:
+                return module_data
+            else:
+                status_code = 40001
+                detail = '数据库报错'
+                log.info(date)
+                return status_code, detail
         else:
             status_code = 40001
             detail = '同一项目下含有重复的模块名称'

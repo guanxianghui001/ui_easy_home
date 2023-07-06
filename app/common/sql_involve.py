@@ -3,6 +3,7 @@ from app.conf import config
 from pymysql.err import OperationalError as OpErr
 from app.common.log import Logger
 
+
 class SqlInvolve:
     def __init__(self):
         self.cursor = None
@@ -12,7 +13,7 @@ class SqlInvolve:
         self.user = config.db_user
         self.password = config.db_password
         self.database = config.database
-        self.log=Logger()
+        self.log = Logger()
 
     @property
     def connect(self):

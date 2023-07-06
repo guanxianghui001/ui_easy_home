@@ -11,18 +11,20 @@ class Logger(logging.Logger):
         super(Logger, self).__init__(self)
         # 日志文件名
         path = pathlib.Path()
-        current_path=path.absolute()
-
+        current_path = path.cwd()
+        real_path = current_path.parts
+        last_path = ''
+        for i in real_path:
+            if i == 'app':
+                break
+            else:
+                last_path = last_path + i
         if filename is None:
-            filename = current_path /'app/logs/system.log'
-            file=current_path /'app/logs'
-        if not file.exists():
-            file.mkdir(parents='logs')
-            print(file)
+            filename = last_path+'\\app\\logs\\system.log'
         self.filename = filename
 
         # 创建一个handler，用于写入日志文件 (每天生成1个，保留30天的日志)
-        fh = logging.handlers.TimedRotatingFileHandler(self.filename, 'D', 1, 30,encoding="utf-8")
+        fh = logging.handlers.TimedRotatingFileHandler(self.filename, 'D', 1, 30, encoding="utf-8")
         fh.suffix = "%Y%m%d-%H%M.log"
         fh.setLevel(logging.DEBUG)
 

@@ -5,7 +5,6 @@
 @Author ：guanxianghui
 @Date ：2023/7/4 14:22 
 """
-from typing import Union
 from fastapi import Path, Query
 from pydantic import BaseModel, Field
 

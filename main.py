@@ -2,12 +2,18 @@ from fastapi import FastAPI, HTTPException
 from uvicorn import run
 from app.schemas.project import *
 from app.schemas.module import *
+from app.schemas.code import *
+from app.schemas.scene import *
 from app.common.response.response_schema import ResponseBase
 from app.operation.project_operation import *
 from app.operation.module_operation import *
 from app.operation.code_operation import *
+from app.operation.scene_operation import *
+from app.common.log import Logger
 
 app = FastAPI(debug=True)
+
+log_out = Logger()
 
 
 @app.get("/")
@@ -89,10 +95,27 @@ async def update_module(item: UpdateModule):
         return response_base.fail(code=40001, msg='模块已被删除或不存在')
 
 
-@app.get("/ui/code/info", summary="查询code数据")
-async def get_code():
-    datas = get_codes()
+@app.post("/ui/code/info", summary="查询code数据")
+async def get_code(item: CodeInfo):
+    code_dict = item.dict()
+    datas = get_codes(code_dict['code_type'])
     return response_base.response_200(data=datas)
+
+
+@app.post("/ui/scene/add", summary='增加场景')
+async def add_scene(item: AddScene):
+    scene_dict = item.dict()
+    scene_name = scene_dict["name"].strip()
+    if scene_name == "":
+        return response_base.fail(code=40002, msg='场景名称不能为空')
+    else:
+        scene_dict["name"] = scene_name
+        datas = add_scenes(scene_dict)
+        log.info(datas)
+        if type(datas) == dict:
+            return response_base.response_200(data=datas)
+        else:
+            return response_base.fail(code=datas[0], msg=datas[1])
 
 
 response_base = ResponseBase()

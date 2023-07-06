@@ -1,6 +1,4 @@
 # 数据库配置
-# db_host = '173.168.4.38'
-# db_host = '173.168.2.122'
 # 使用101.33内网数据库
 db_host = '172.20.101.33'
 db_port = 3306
@@ -10,7 +8,7 @@ database = 'ui_easy_home'
 project_table = 'project'
 module_table = 'module'
 code_table = 'code_detail'
-
+scene_table = 'scenario'
 
 #断言截图生成路径
 screenshot_dir = '../../report/screenshots'

@@ -15,11 +15,12 @@ code_table = config.code_table
 log = Logger()
 
 
-def get_codes():
-    # field = "code_value, code_desc, code_type_id,code_type"
+def get_codes(code_type):
     field = "distinct code_type, code_type_name"
-    first_data = sql.get_all(field, code_table, {})
+    conndition = {"code_type": code_type}
+    first_data = sql.get_all(field, code_table, conndition)
     log.info(first_data)
+    log.info(f'请求参数为:{code_type}')
     first_list_result = []
     if first_data == ():
         return first_list_result

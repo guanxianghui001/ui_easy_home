@@ -5,6 +5,7 @@ db_port = 3306
 db_user = 'fund_cycle_user'
 db_password = '6YYSV!%7gcn!1T07wPyKRjql@RAB*kjO'
 database = 'ui_easy_home'
+mysql=f'mysqldb://{db_host}:{db_port}@{db_user}]/'
 project_table = 'project'
 module_table = 'module'
 code_table = 'code_detail'

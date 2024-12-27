@@ -46,3 +46,38 @@ def add_scenes(scene_data: dict):
         detail = '同一项目下含有重复的场景名称'
         log.info(detail)
         return status_code, detail
+
+def search_scene(project_id):
+    field = "id, name, father_node_id"
+    condition = {"project_id": project_id}
+    data = sql.get_all(field, scene_table, condition)
+    list_result = []
+    if data == ():
+        return list_result
+    else:
+        data_list = list(data)
+        for i in data_list:
+            list_field = ['id', 'name', 'parent_id']
+            list_result.append(dict(zip(list_field, i)))
+
+        list_result = (ram_list_to_tree(list_result))
+        return list_result
+
+def delete_scenes(scene_name):
+    update_datas = {"is_del": 1}
+    condition = {"name": scene_name}
+    if SqlInvolve().get_all('count(*)', scene_table, condition)[0][0] > 0:
+        result = SqlInvolve().update_table_datas(scene_table, update_datas, condition)
+    else:
+        result = False
+    return result
+
+def update_scenes(id, scene_name):
+    condition = {"id": id}
+    update_datas = {"name": scene_name}
+    if SqlInvolve().get_all('count(*)', scene_table, condition)[0][0] > 0:
+        result = SqlInvolve().update_table_datas(scene_table, update_datas, condition)
+        print(result)
+    else:
+        result = False
+    return result

@@ -5,71 +5,66 @@
 @Author ：guanxianghui
 @Date ：2023/6/30 10:31
 """
-from app.conf import config
-from app.common import snow
-from app.common.sql_involve import SqlInvolve
+import time
+from datetime import datetime
 
+from sqlmodel import SQLModel, Field, create_engine, Session, select
+from app.common import snow
+from app.conf import config
+from app.conf.config import *
 from app.utils.generate_string import get_current_timestamp
 
-# class ProjectOperation:
-#     def __int__(self):
-#         self.table = config.project_table
+# 数据库连接
+DATABASE_URL = config.project_table  # 确保在 config 中有这个 URL
+engine = create_engine(f'mysql+pymysql://root:Qa123456@localhost:3306/ui_easy_home?charset=utf8')
 
-table = config.project_table
+class Project(SQLModel, table=True):
+    id: int = Field(default_factory=lambda: snow.IdWorker(1, 2, 0).get_id(), primary_key=True)
+    name: str
+    is_del: int = Field(default=0)
+    create_time: str = Field(default=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    update_time: str = Field(default=datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
-
-def add_projects(project_name):
-    # project_name=project_name.strip()
-    project_id = snow.IdWorker(1, 2, 0).get_id()
-    data_list = [['id', project_id], ['name', project_name]]
-    if SqlInvolve().get_all('count(*)', 'project', {"name": project_name, "is_del": 0})[0][0] == 0:
-        data = dict(data_list)
-        SqlInvolve().insert_table_datas('project', data)
-        return project_id, project_name
-    else:
-        return False
-
+def add_projects(project_name: str):
+    with Session(engine) as session:
+        if not session.exec(select(Project).where(Project.name == project_name, Project.is_del == 0)).first():
+            project = Project(name=project_name)
+            session.add(project)
+            session.commit()
+            return project.id, project.name
+        else:
+            return False
 
 def search_project():
-    field = "id, name, create_time,update_time"
-    condition = {"is_del": 0}
-    data = SqlInvolve().get_all(field, table, condition, 1, 'create_time desc')
-    total = SqlInvolve().get_all('count(*)', table, condition)[0][0]
-    # print(total)
-    list_result = []
-    if data == ():
-        return list_result
-    else:
-        data_list = list(data)
-        for i in data_list:
-            list_field = ['id', 'name', 'create_time', 'update_time']
-            list_result.append(dict(zip(list_field, i)))
-        return list_result
+    with Session(engine) as session:
+        projects = session.exec(select(Project).where(Project.is_del == 0)).all()
+        return [project.model_dump() for project in projects]
 
+def delete_projects(project_name: str):
+    with Session(engine) as session:
+        project = session.exec(select(Project).where(Project.name == project_name, Project.is_del == 0)).first()
+        if project:
+            project.is_del = 1
+            session.add(project)
+            session.commit()
+            return True
+        else:
+            return False
 
-def delete_projects(project_name):
-    update_datas = {"is_del": 1}
-    condition = {"name": project_name}
-    if SqlInvolve().get_all('count(*)', table, {"is_del": 0})[0][0] > 0:
-        result = SqlInvolve().update_table_datas(table, update_datas, condition)
-        print(result)
-    else:
-        result = False
-    return result
-
-
-def update_projects(id, project_name):
-    condition = {"id": id}
-    update_datas = {"name": project_name}
-    if SqlInvolve().get_all('count(*)', table,condition)[0][0] > 0:
-        result = SqlInvolve().update_table_datas(table, update_datas, condition)
-        print(result)
-    else:
-        result = False
-    return result
-
+def update_projects(id: int, project_name: str):
+    with Session(engine) as session:
+        project = session.exec(select(Project).where(Project.id == id)).first()
+        if project:
+            project.name = project_name
+            session.add(project)
+            session.commit()
+            return True
+        else:
+            return False
 
 if __name__ == '__main__':
-    # add_project('分類分級21')
+    add_projects('1111')
     # search_project()
+    update_projects(1872553663130640384,'2222')
     print(search_project())
+
